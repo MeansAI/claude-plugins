@@ -9,6 +9,17 @@ set -e
 echo "=== MeansAI JWS Ecosystem Installer ==="
 echo ""
 
+# Check gh cli
+if ! command -v gh &> /dev/null; then
+    echo "Error: gh cli not found. Install with: brew install gh"
+    exit 1
+fi
+
+if ! gh auth status &> /dev/null; then
+    echo "Error: gh cli not authenticated. Run: gh auth login"
+    exit 1
+fi
+
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -25,7 +36,7 @@ mkdir -p "$JWS_DIR"
 mkdir -p "$JMLLC_DIR/Skills/JWS"
 mkdir -p "$CLAUDE_DIR/commands"
 
-# Clone or update repositories
+# Clone or update repositories using gh cli (uses existing auth)
 clone_or_pull() {
     local repo=$1
     local dir=$2
@@ -36,7 +47,7 @@ clone_or_pull() {
         (cd "$dir" && git pull --quiet)
     else
         echo -e "${GREEN}Cloning${NC} $name..."
-        git clone --quiet "https://github.com/MeansAI/$repo.git" "$dir"
+        gh repo clone "MeansAI/$repo" "$dir" -- --quiet
     fi
 }
 
