@@ -20,6 +20,9 @@ if ! gh auth status &> /dev/null; then
     exit 1
 fi
 
+# Configure git to use gh for GitHub authentication
+gh auth setup-git
+
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -36,7 +39,7 @@ mkdir -p "$JWS_DIR"
 mkdir -p "$JMLLC_DIR/Skills/JWS"
 mkdir -p "$CLAUDE_DIR/commands"
 
-# Clone or update repositories using gh cli (uses existing auth)
+# Clone or update repositories (gh auth setup-git handles credentials)
 clone_or_pull() {
     local repo=$1
     local dir=$2
@@ -47,7 +50,7 @@ clone_or_pull() {
         (cd "$dir" && git pull --quiet)
     else
         echo -e "${GREEN}Cloning${NC} $name..."
-        gh repo clone "MeansAI/$repo" "$dir" -- --quiet
+        git clone --quiet "https://github.com/MeansAI/$repo.git" "$dir"
     fi
 }
 
