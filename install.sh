@@ -89,6 +89,23 @@ done
 echo "Copying support scripts..."
 cp "$JMLLC_DIR/claude-plugins/scripts/"*.swift "$JMLLC_DIR/Skills/JWS/" 2>/dev/null || true
 
+# Create update script
+echo "Creating update command..."
+cat > "$HOME/.local/bin/jws-update" << 'UPDATE'
+#!/bin/bash
+# Update all MeansAI JWS repositories
+echo "Updating MeansAI JWS ecosystem..."
+for dir in ~/Documents/JMLLC/JWS/JWS ~/Documents/JMLLC/JWS/JCS ~/Documents/JMLLC/JWS/JBS ~/Documents/JMLLC/JWS/Transmission ~/Documents/JMLLC/JUI ~/Documents/JMLLC/JCX ~/Documents/JMLLC/StarterApp ~/Documents/JMLLC/claude-plugins; do
+    if [ -d "$dir" ]; then
+        echo "Updating $(basename $dir)..."
+        (cd "$dir" && git pull --quiet)
+    fi
+done
+echo "Done!"
+UPDATE
+mkdir -p "$HOME/.local/bin"
+chmod +x "$HOME/.local/bin/jws-update"
+
 # Create Claude settings if not exists
 SETTINGS_FILE="$CLAUDE_DIR/settings.json"
 if [ ! -f "$SETTINGS_FILE" ]; then
@@ -106,7 +123,8 @@ if [ ! -f "$SETTINGS_FILE" ]; then
       "Bash(curl:*)",
       "Bash(mkdir:*)",
       "Bash(cp:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(jws-update)"
     ]
   }
 }
@@ -126,6 +144,9 @@ echo "  /x-news       - Aggregate news from X feeds"
 echo "  /x-monitor    - Breaking news alerts"
 echo "  /manim        - Create animated explainer videos"
 echo ""
-echo "Swift packages available at: $JWS_DIR"
+echo "To update all repos:  jws-update"
+echo "Or re-run this script to update everything."
 echo ""
-echo -e "${GREEN}Ready to use!${NC} Restart Claude Code to load new skills."
+echo "Swift packages at: $JWS_DIR"
+echo ""
+echo -e "${GREEN}Ready!${NC} Restart Claude Code to load skills."
